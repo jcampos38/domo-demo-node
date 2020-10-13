@@ -3,13 +3,15 @@ require('dotenv').config();
 const express = require('express')
 const passport = require('passport')
 const session = require('express-session')
+BearerStrategy = require('passport-azure-ad').BearerStrategy
 const cors = require('cors')
-const LocalStrategy = require('passport-local').Strategy
 const path = require('path');
 const fs = require('fs');
 const embed = require('./embed.js');
 const app = express();
 const bodyParser = require('body-parser')
+const config = require('./config');
+const authenticatedUserTokens = [];
 
 app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({
@@ -22,7 +24,7 @@ const argv = yargs
     .option('port', {
         alias: 'p',
         description: 'Specify which port to listen on',
-        default: 3001,
+        default: 3000,
         type: 'number',
     })
     .help()
@@ -47,20 +49,25 @@ passport.deserializeUser(function (username, cb) {
   findUser(username, cb)
 })
 
-passport.use(new LocalStrategy(
-  function(username, password, done) {
-    findUser(username, (err, user) => {
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      return done(null, user);
-    });
+const authenticationStrategy = new BearerStrategy(config.credentials, (token, done) => {
+  let currentUser = null;
+  console.log("asdasdas")
+  let userToken = authenticatedUserTokens.find((user) => {
+      currentUser = user;
+      user.sub === token.sub;
+  });
+
+  if(!userToken) {
+      authenticatedUserTokens.push(token);
   }
-));
+
+  return done(null, currentUser, token);
+});
+
+passport.use(authenticationStrategy);
 
 function authenticationMiddleware () {
   return function (req, res, next) {
-    console.log(req.isAuthenticated())
-    console.log(req.cookies)
     if (req.isAuthenticated()) {
       return next()
     }
@@ -106,9 +113,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'/login.html'));
 })
 
-app.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({ username: req.user.username,
-               visualizations: req.user.visualizations })
+app.post('/login', passport.authenticate('oauth-bearer'), (req, res) => {
+    //res.json({ username: req.user.username,
+    //           visualizations: req.user.visualizations })
   }
 );
 
