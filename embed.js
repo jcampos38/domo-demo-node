@@ -110,7 +110,7 @@ function secondsSinceEpoch(){ return Math.floor( Date.now() / 1000 ) }
 function returnEmbedInfo(req, res, config) {
   console.log('returning embed info');
   if (process.env.USE_XHR) {
-    res.send(`{"embedToken": "${config.embedToken}", "embedUrl": "${EMBED_URL}${config.embedId}"}`);
+    res.json({embedToken: config.embedToken, embedUrl: EMBED_URL+config.embedId});
   } else {
     res.send(`
   <html>

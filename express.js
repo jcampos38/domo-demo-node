@@ -3,15 +3,18 @@ require('dotenv').config();
 const express = require('express')
 const passport = require('passport')
 const session = require('express-session')
+const cors = require('cors')
 const LocalStrategy = require('passport-local').Strategy
 const path = require('path');
 const fs = require('fs');
 const embed = require('./embed.js');
 const app = express();
 const bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({
-  extended: false
-}))
+
+app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({
+//  extended: false
+//}))
 const users = require('./users.js');
 const yargs = require('yargs');
 
@@ -56,10 +59,12 @@ passport.use(new LocalStrategy(
 
 function authenticationMiddleware () {
   return function (req, res, next) {
+    console.log(req.isAuthenticated())
+    console.log(req.cookies)
     if (req.isAuthenticated()) {
       return next()
     }
-    res.redirect('/')
+    res.json({ text: "Unauthorized" })
   }
 }
 
@@ -72,6 +77,10 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(cors({
+  origin : "http://localhost:3000",
+  credentials: true,
+}));
 
 
 
@@ -97,10 +106,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname,'/login.html'));
 })
 
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/dashboard',
-  failureRedirect: '/'
-}))
+app.post('/login', passport.authenticate('local'), (req, res) => {
+    res.json({ username: req.user.username,
+               visualizations: req.user.visualizations })
+  }
+);
 
 
 app.get('/dashboard', passport.authenticationMiddleware(), (req, res, next) => {
