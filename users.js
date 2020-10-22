@@ -1,6 +1,6 @@
 module.exports = [
     {
-      username: 'Mike',
+      username: 'mike.johnson@jacm55hotmail.onmicrosoft.com',
       visualizations: [{ id: 2, title: 'Price by Country'}],
       config: {
         visualization2: {
@@ -9,7 +9,7 @@ module.exports = [
       }
     },
     {
-      username: 'Susan',
+      username: 'susan.davis@jacm55hotmail.onmicrosoft.com',
       visualizations: [{ id: 1, title: 'Points by Country'}, { id: 2, title: 'Price by Country'}],
       config: {
         visualization1: {
@@ -33,7 +33,7 @@ module.exports = [
       }
     },
     {
-      username: 'Rachael',
+      username: 'jacm_55@hotmail.com',
       visualizations: [{ id: 1, title: 'Points by Country'}, { id: 2, title: 'Price by Country'}],
       config: {
         visualization1: {
