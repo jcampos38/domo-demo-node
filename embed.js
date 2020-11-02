@@ -1,6 +1,7 @@
 const request = require('request');
 const jws = require('jws');
 const {ACCESS_TOKEN_URL, EMBED_TOKEN_URL, EMBED_URL} = require('./constants.js');
+const { domoConfig } = require('./config/domoConfig')
 
 function getEmbedToken(req, res, next, config) {
   return new Promise((resolve, reject) => {
@@ -10,7 +11,7 @@ function getEmbedToken(req, res, next, config) {
     } else {
       console.log('embed token is expired');
       getAccessToken(req, res, next, config).then(() => {
-        console.log('creating new embed token');
+        console.log(config.filters)
         request.post(EMBED_TOKEN_URL,
           { 
             json: {
@@ -73,7 +74,7 @@ function getAccessToken(req, res, next, config) {
       request.get(ACCESS_TOKEN_URL,
       {
         headers: {
-          "Authorization": "Basic " + Buffer.from(config.clientId + ":" + config.clientSecret).toString("base64")
+          "Authorization": "Basic " + Buffer.from(domoConfig.clientId + ":" + domoConfig.clientSecret).toString("base64")
         }
       },
       function(err, response, body) {
